@@ -18,7 +18,9 @@ from google.cloud.firestore_v1.base_vector_query import DistanceMeasure
 # ==================================================
 
 PROJECT_DIR = Path(__file__).resolve().parent.parent
-CREDENTIALS_FILE = PROJECT_DIR / "service-account.json"
+CREDENTIALS_FILE = Path(
+    os.getenv("GOOGLE_APPLICATION_CREDENTIALS", str(PROJECT_DIR / "service-account.json"))
+)
 
 load_dotenv(PROJECT_DIR / ".env")
 
