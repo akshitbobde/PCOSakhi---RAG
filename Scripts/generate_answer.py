@@ -37,17 +37,26 @@ if not API_KEY:
         "GEMINI_API_KEY is missing. Check the .env file."
     )
 
-if not CREDENTIALS_FILE.exists():
+IS_CLOUD_RUN = bool(os.getenv("K_SERVICE"))
+
+if not IS_CLOUD_RUN and not CREDENTIALS_FILE.exists():
     raise FileNotFoundError(
-        f"Credentials file not found: {CREDENTIALS_FILE}"
+        f"Service account file not found: {CREDENTIALS_FILE}"
     )
 
 client = genai.Client(api_key=API_KEY)
 
-db = firestore.Client.from_service_account_json(
-    str(CREDENTIALS_FILE)
+FIRESTORE_PROJECT_ID = os.getenv(
+    "FIRESTORE_PROJECT_ID",
+    "pcosakhi-a6932"
 )
 
+if IS_CLOUD_RUN:
+    db = firestore.Client(project=FIRESTORE_PROJECT_ID)
+else:
+    db = firestore.Client.from_service_account_json(
+        str(CREDENTIALS_FILE)
+    )
 
 # ==================================================
 # 2. RETRY TRANSIENT API ERRORS
